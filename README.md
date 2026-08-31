@@ -40,7 +40,7 @@ float4 mixbox_latent_to_rgb(mixbox_latent latent);
 static float3 mixbox_lerp(float3 basecolor, float3 mixcolor, float mix, const global uchar * restrict LUT);
 
 //Utility Colour functions
-#define __LINEAR_GAMMA // <-- Define this is your input colour is linear gamma
+#define __LINEAR_GAMMA // <-- Define this if your input colour is linear gamma
 float mixbox_linear_to_srgbf(float x);
 float mixbox_srgb_to_linearf(float x);
 float4 mixbox_linear_to_srgb(float4 rgb);
