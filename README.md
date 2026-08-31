@@ -4,25 +4,54 @@
 </br>
 My objective was to port the code to a OpenCL kernel to run in Houdini to use in fluid simulations and image processing.
 
-
-
-
-
 https://github.com/user-attachments/assets/eb13e046-8726-4011-834d-08590bc8c582
-
 
 ## [Demo HIP](houdini_mixbox_demo.hiplc)
 
 Demo file was saved in Houdini 22, however the code and package should work on Houdini 20+</br>
-Contains a FLIP setup and a COPs setup. The FLIP setup is implemented as a sop solver inside the flip dopnet. The sop solver is required to be after the sourcing, or else the proximity search will not be accurate.</br>
-The SOP solver setup also contains a few different variations where I tried to optimize the kernel using Workgroup Reduction, but the fastest method I have tried by far is the code I've set as the example in this README. The same example is the node stream that is connected in the demo HIP.
+Contains a FLIP setup and a COPs setup. The FLIP setup is implemented as a sop solver inside the flip dopnet. The sop solver is required to be after the sourcing, or else the proximity search will not be accurate.</br></br>
+![image](demo_screenshot.png)</br>
+The SOP solver setup also contains a few different variations where I tried to optimize the kernel using Workgroup Reduction, but the fastest method I have tried by far is the code I've set as the example below.</br>The same example is the node stream that is connected in the demo HIP.</br>
+In this screenshot, green is the fastest, blue is medium and tied while red is the slowest.
 
 ## Installing the package
 
 Download or git clone this repository into your Documents/houdinixx.x/packages folder.</br>
 Then move mixbox-houdini-opencl.json up into the packages folder.
 
-## SOP: Blending points with a uniform kernel:
+## Using the Library
+
+### Declarations
+
+```c
+const uchar LUT[799075]; //Look-up table for evaluating polynomials
+float4 mixbox_eval_polynomial(const float4 c);
+
+struct mixbox_latent;
+mixbox_latent add_latent(mixbox_latent a, mixbox_latent b);
+mixbox_latent subtract_latent(mixbo_latent a, mixbox_latent b);
+mixbox_latent multiply_latent(mixbo_latent a, float b);
+mixbox_latent divide_latent(mixbo_latent a, float b);
+
+mixbox_latent mixbox_rgb_to_latent(float4 rgba, const global uchar * restrict LUT);
+float4 mixbox_latent_to_rgb(mixbox_latent latent);
+
+
+static float3 mixbox_lerp(float3 basecolor, float3 mixcolor, float mix, const global uchar * restrict LUT);
+
+//Utility Colour functions
+#define __LINEAR_GAMMA // <-- Define this is your input colour is linear gamma
+float mixbox_linear_to_srgbf(float x);
+float mixbox_srgb_to_linearf(float x);
+float4 mixbox_linear_to_srgb(float4 rgb);
+float4 mixbox_srgb_to_linear(float4 rgb);
+
+```
+
+All of the colour functions expect a float4, however no processing happens to the 4th element.</br>
+I did it this way because I assumed it might make it faster since the GPU loads memory into 128bit registers, however I think it makes no difference here.
+
+### SOP: Blending points with a uniform kernel:
 
 Before the OpenCL SOP, you need the following 4 attributes:
 
@@ -68,7 +97,7 @@ v@__tmpCd    //A temporary vector attribute to store intermediate results
 
 Alternatively, instead of `#import "mixbox.h"`, you can copy and paste in the entire [header file](ocl/include/mixbox.h) in place if you don't want to install this package.
 
-## COP: Blending pixels with a weighted kernel:
+### COP: Blending pixels with a weighted kernel:
 
 ```c
 #bind layer src? val=0
