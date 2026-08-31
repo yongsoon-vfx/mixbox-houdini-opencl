@@ -1,0 +1,10 @@
+{
+    "enable": true,
+    "env": [
+        {
+            "var": "Mixbox",
+            "value": "$HOUDINI_PACKAGE_PATH/mixbox-houdini-opencl"
+        }
+    ],
+    "path": "$Mixbox"
+}
