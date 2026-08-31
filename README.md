@@ -3,12 +3,19 @@
 [MixBox](https://github.com/scrtwpns/mixbox/tree/master) is a colour mixing method created by [@scrtwpns](https://github.com/scrtwpns) to model realistic pigment mixing.
 </br>
 My objective was to port the code to a OpenCL kernel to run in Houdini to use in fluid simulations and image processing.
-[![video](mixbox_demo.mp4)]
 
-## [Demo File](houdini_mixbox_demo.hiplc)
+
+
+
+
+https://github.com/user-attachments/assets/eb13e046-8726-4011-834d-08590bc8c582
+
+
+## [Demo HIP](houdini_mixbox_demo.hiplc)
 
 Demo file was saved in Houdini 22, however the code and package should work on Houdini 20+</br>
-Contains a FLIP setup and a COPs setup. The FLIP setup is implemented as a sop solver inside the flip dopnet. The sop solver is required to be after the sourcing, or else the proximity search will not be accurate.
+Contains a FLIP setup and a COPs setup. The FLIP setup is implemented as a sop solver inside the flip dopnet. The sop solver is required to be after the sourcing, or else the proximity search will not be accurate.</br>
+The SOP solver setup also contains a few different variations where I tried to optimize the kernel using Workgroup Reduction, but the fastest method I have tried by far is the code I've set as the example in this README. The same example is the node stream that is connected in the demo HIP.
 
 ## Installing the package
 
